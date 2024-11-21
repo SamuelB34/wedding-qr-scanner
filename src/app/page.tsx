@@ -1,95 +1,93 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client"
+import styles from "./page.module.scss";
+import { Scanner } from '@yudiel/react-qr-scanner';
+import { getGuestById } from "@/shared/services/guestsService"
+import { Header } from "@/shared/components/header/Header"
+import { useState } from "react"
+import Image from "next/image"
+
 
 export default function Home() {
+  const [guestFound, setGuestFound] = useState<boolean>(false)
+  const [guestInfo, setGuestInfo] = useState<any>()
+
+  const searchGuest = async (guestId: string) => {
+    try {
+      const res = await getGuestById(guestId);
+      setGuestInfo(res.data)
+      setGuestFound(true)
+      console.log(res.data)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+      <Header dark={false} />
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      {
+        !guestFound &&(
+        <div className={styles.container}>
+          <span className={styles.container__txt}>Escanear Código QR de la invitacion</span>
+          <Scanner onScan={async (result) => {
+            await searchGuest(result[0].rawValue)
+          }} styles={{
+            container: {
+              width: '80%',
+              height: 'auto',
+              position: 'static',
+              background:'none'
+            }
+          }} />
+
+          <Image src={'/leaf.svg'} alt={'leaf'} width="56" height="27" className={styles.container__leaf}/>
+        </div>)
+      }
+      
+
+
+      {
+        guestFound && (
+          <div className={styles.guest_details}>
+            <div className={styles.back} onClick={() => {
+              setGuestFound(false)
+            }}>
+              <Image src={'/chevron.svg'} alt={'back'} width="16" height="9" className={styles.back__img}/>
+              Back
+            </div>
+            <span className={styles.guest_details__name}>{guestInfo.full_name}</span>
+
+            <div className={styles.guest_details__mesa}>
+              <span className={styles.label}>Mesa:</span>
+              <span className={styles.info}>#{guestInfo.table.label}</span>
+            </div>
+
+            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+              <div className={styles.guest_details__group}>
+                <span className={styles.label}>Grupo:</span>
+                <span className={styles.info}>{guestInfo.group.label}</span>
+              </div>
+
+              <div className={styles.guest_details__group_list}>
+                {
+                  guestInfo.group.guests.map((guest: {label: string, value: string}) =>  {
+                    return (
+                      <div key={guest.value} className={styles.guest}>
+                        <span className={styles.guest__name}>{guest.label}</span>
+                      </div>
+                    )
+                  })
+                }
+              </div>
+            </div>
+
+
+          </div>
+        )
+      }
+
+
     </div>
   );
 }
