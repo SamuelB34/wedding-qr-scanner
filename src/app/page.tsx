@@ -9,6 +9,7 @@ import Image from "next/image"
 
 export default function Home() {
   const [guestFound, setGuestFound] = useState<boolean>(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [guestInfo, setGuestInfo] = useState<any>()
 
   const searchGuest = async (guestId: string) => {
