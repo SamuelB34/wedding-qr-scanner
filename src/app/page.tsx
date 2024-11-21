@@ -64,7 +64,8 @@ export default function Home() {
               <span className={styles.info}>#{guestInfo.table.label}</span>
             </div>
 
-            <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '16px', 'min-width': '300px',
+              width: '80%'}}>
               <div className={styles.guest_details__group}>
                 <span className={styles.label}>Grupo:</span>
                 <span className={styles.info}>{guestInfo.group.label}</span>
